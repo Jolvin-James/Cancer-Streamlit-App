@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
-import pickle as pickle
+import joblib
 
 def create_model(data):
     X = data.drop(['diagnosis'], axis = 1)
@@ -49,16 +49,19 @@ def main():
     # data = pd.read_csv("data/data.csv")
     # print(data.info())
 
-    # build the model apart, export it to binary file, and then import the binary file to application
-    # because building the training and test in the same creates more problem to usability cause we have to run 
-    # the ml model always when logging into the application so we use pickle5 module for this reason
-    with open('model/model.pkl', 'wb') as f:
-        # opening a new pickle file called model.pkl and then writing into file so 'w'
-        # and its a binary file so 'b' --> 'wb' as the second argument and f for file
-        pickle.dump(model, f)
+    # # build the model apart, export it to binary file, and then import the binary file to application
+    # # because building the training and test in the same creates more problem to usability cause we have to run 
+    # # the ml model always when logging into the application so we use pickle5 module for this reason
+    # with open('model/model.pkl', 'wb') as f:
+    #     # opening a new pickle file called model.pkl and then writing into file so 'w'
+    #     # and its a binary file so 'b' --> 'wb' as the second argument and f for file
+    #     pickle.dump(model, f)
+    joblib.dump(model, 'model/model.pkl')
 
-    with open('model/scaler.pkl', 'wb') as f:
-        pickle.dump(scaler, f)
+    # with open('model/scaler.pkl', 'wb') as f:
+    #     pickle.dump(scaler, f)
+
+    joblib.dump(scaler, 'model/scaler.pkl')
 
 
 if __name__ == '__main__':
