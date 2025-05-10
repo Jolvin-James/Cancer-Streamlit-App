@@ -2,6 +2,7 @@ import streamlit as st
 import pickle as pickle
 import pandas as pd
 import plotly.graph_objects as go
+import numpy as np
 
 def get_clean_data():
     data = pd.read_csv("data/data.csv")
@@ -138,30 +139,56 @@ def get_radar_chart(input_data):
   
   return fig
 
+def add_prediction(input_data):
+  model = pickle.load(open("model/model.pkl", "rb"))
+  scaler = pickle.load(open("model/scaler.pkl", "rb"))
+
+  # converting the values of the key into single array of values
+  input_array = np.array(list(input_data.values())).reshape(1, -1)
+  # what it does it takes the values of the cell neclei measurement value we have choosen and the place those value
+  # into an array (here we have 30 values so 30 values will be placed into an array)
+  # and then reshape it to 1 row and 30 columns into vertical form
+
+  input_array_scaled = scaler.transform(input_array)
+
+  # here we are predicting if its benign or malignant tumor with being 0 or 1
+  prediction = model.predict(input_array_scaled)
+
+  st.subheader("Cell cluster prediction")
+  st.write("The cell cluster is classified as:")
+
+  if prediction[0] == 0:
+    st.success("Benign")
+  else:
+     st.error("Malicious")
+
+  st.write("Probability of being benign", model.predict_proba(input_array_scaled)[0][0])
+  st.write("Probability of being malicious", model.predict_proba(input_array_scaled)[0][1])
 
 
 def main():
-    st.set_page_config(
-        page_title="Breast Cancer Detection", 
-        page_icon="🧊",
-        layout="wide",
-        initial_sidebar_state="expanded"
-    )
+  st.set_page_config(
+    page_title="Breast Cancer Detection", 
+    page_icon=":female-doctor:",
+    layout="wide",
+    initial_sidebar_state="expanded"
+  )
 
-    input_data = add_sidebar()
+  input_data = add_sidebar()
 
-    with st.container():
-        st.title("Breast Cancer Detection")
-        st.write("This is a simple web app to predict whether a tumor is benign or malignant based on its features.")
+  with st.container():
+    st.title("Breast Cancer Detection")
+    st.write("This is a simple web app to predict whether a tumor is benign or malignant based on its features.")
 
     col1, col2 = st.columns([4,1]) # the first colum is 4 times bigger than the second column
     
-    with col1:
-        radar_chart = get_radar_chart(input_data)
-        st.plotly_chart(radar_chart)
+  with col1:
+    radar_chart = get_radar_chart(input_data)
+    st.plotly_chart(radar_chart)
 
-    with col2:
-        st.write("This space is reserved for additional content.")
+  with col2:
+    add_prediction(input_data)
+
 
 if __name__ == "__main__":
     main()
